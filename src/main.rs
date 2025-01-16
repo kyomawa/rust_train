@@ -37,6 +37,23 @@ fn list_tasks<T: Task>(tasks: &HashMap<i32, (T, TaskStatus)>) {
     }
 }
 
+fn complete_task<T: Task>(tasks: &mut HashMap<i32, (T, TaskStatus)>, id: i32) {
+    if let Some((_, status)) = tasks.get_mut(&id) {
+        *status = TaskStatus::Complete;
+        println!("Tâche marquée comme complète !")
+    } else {
+        println!("ID de tache invalide.");
+    }
+}
+
+fn remove_task<T: Task>(tasks: &mut HashMap<i32, (T, TaskStatus)>, id: i32) {
+    if tasks.remove(&id).is_some() {
+        println!("Tâche supprimée.")
+    } else {
+        println!("L'ID est invalide !")
+    }
+}
+
 fn main() {
     let mut tasks: HashMap<i32, (String, TaskStatus)> = HashMap::new();
     let mut next_task_id = 1;
@@ -54,13 +71,33 @@ fn main() {
 
         match choice.trim() {
             "1" => {
-                println!("Entrez une description.");
+                println!("Entrez une description de la tâche.");
                 let mut description = String::new();
                 io::stdin().read_line(&mut description).expect("Impossible de lire la ligne.");
                 add_task(&mut tasks, description.trim().to_string(), &mut next_task_id);
             }
             "2" => {
                 list_tasks(&tasks);
+            }
+            "3" => {
+                println!("Entrez l'ID de la tâche à marquer comme complète.");
+                let mut id_str = String::new();
+                io::stdin().read_line(&mut id_str).expect("Impossible de lire la ligne.");
+                if let Ok(id) = id_str.trim().parse::<i32>() {
+                    complete_task(&mut tasks, id);
+                } else {
+                    println!("Veuillez entrer un ID valide !");
+                }
+            }
+            "4" => {
+                println!("Entrez l'ID de la tâche à supprimer.");
+                let mut id_str = String::new();
+                io::stdin().read_line(&mut id_str).expect("Impossible de lire la ligne.");
+                if let Ok(id) = id_str.trim().parse::<i32>() {
+                    remove_task(&mut tasks, id);
+                } else {
+                    println!("Veuillez entrer un ID valide !");
+                }
             }
             "5" => {
                 println!("Gestionnaire fermé.");
