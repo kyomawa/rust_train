@@ -1,48 +1,43 @@
-use std::cmp::Ordering;
 use std::io;
-use rand::{ thread_rng, Rng };
+use rand::Rng;
 
 fn main() {
-    let mut secret: i32 = thread_rng().gen_range(1..=100);
+    let numbers = [
+        rand::thread_rng().gen_range(0..=100),
+        rand::thread_rng().gen_range(0..=100),
+        rand::thread_rng().gen_range(0..=100),
+        rand::thread_rng().gen_range(0..=100),
+        rand::thread_rng().gen_range(0..=100),
+        rand::thread_rng().gen_range(0..=100),
+    ];
 
-    println!("Entre un nombre entre 1 et 100 !");
+    println!("===========================================================");
+    println!("👋 Bienvenue dans << Number Hunt> !");
+    println!("📜 Objectif : Trouve l'un des nombre cachés.");
+    println!("❔ Un tableau de nombres aléatoires a été généré.");
+    println!("💭 Devinez un nombre pour voir s'il est bien dans le tableau !");
+    println!("===========================================================");
 
     loop {
-        let mut input = String::new();
-
-        match read_and_compare(&mut input, &secret) {
-            Some(Ordering::Equal) => {
-                println!("Bingo, t'as trouvé");
-                secret = thread_rng().gen_range(1..=100);
-                println!("Un nouveau nombre aléatoire entre 1 et 100 a été généré !");
-                println!("Entre un nombre entre 1 et 100 !");
-                continue;
+        println!("⌨️  Saisis un nombre !");
+        match read_and_parse_user_input() {
+            Ok(v) => {
+                if numbers.iter().any(|x| x == &v) {
+                    println!("😁 Bien joué, la valeur {} est bien présente dans le tableau.", v);
+                    continue;
+                }
+                println!("😫 Raté ! Le nombre que tu as saisis n'est pas dans le tableau.");
             }
-            Some(Ordering::Greater) => println!("Le nombre à trouver est inférieur !"),
-            Some(Ordering::Less) => println!("Le nombre à trouver est supérieur !"),
-            None => {
-                continue;
-            }
+            Err(_) => println!("😡 Merci de bien vouloir rentrer un nombre."),
         }
     }
 }
 
-fn read_and_compare(input: &mut String, secret: &i32) -> Option<Ordering> {
-    match io::stdin().read_line(input) {
-        Ok(_) => {
-            let guess: i32 = match input.trim().parse() {
-                Ok(val) => val,
-                Err(_) => {
-                    println!("Veuillez renseigner un nombre valide !");
-                    return None;
-                }
-            };
-
-            Some(guess.cmp(secret))
-        }
-        Err(_) => {
-            println!("Impossible de lire la ligne !");
-            return None;
-        }
+fn read_and_parse_user_input() -> Result<i32, ()> {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Impossible de lire la ligne 😵‍💫.");
+    match input.trim().parse::<i32>() {
+        Ok(v) => Ok(v),
+        Err(_) => Err(()),
     }
 }
