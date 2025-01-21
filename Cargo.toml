@@ -1,0 +1,13 @@
+[package]
+name = "hub_games"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [".", "game1", "game2", "game3", "ui"]
+
+[dependencies]
+game1 = {path = "game1"}
+game2 = {path = "game2"}
+game3 = {path = "game3"}
+ui = {path = "ui"}
