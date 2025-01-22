@@ -1,8 +1,9 @@
 use database::sqlite::initiate_db;
-use models::user::get_user;
+use models::{ game::GAMES, user::get_user };
 use models::score::show_all_scores;
 use utils::functions::read_user_input;
 use rusqlite::{ Connection, Result };
+use models::game::play_game;
 
 mod models;
 mod database;
@@ -43,7 +44,11 @@ fn main() -> Result<()> {
         };
 
         match choice {
-            1 => println!("\n🤔 Choix pas encore implémenté !\n"),
+            1 =>
+                match play_game(&conn, &user, GAMES[0]) {
+                    Ok(score) => println!("Joli score de {}", score),
+                    Err(e) => println!("{}", e),
+                }
             2 => println!("\n🤔 Choix pas encore implémenté !\n"),
             3 => println!("\n🤔 Choix pas encore implémenté !\n"),
             4 => show_all_scores(&conn, &user)?,

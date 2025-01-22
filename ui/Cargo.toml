@@ -8,3 +8,4 @@ name = "ui"
 path = "src/lib.rs"
 
 [dependencies]
+console = "0.15.10"
