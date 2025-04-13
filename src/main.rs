@@ -1,14 +1,15 @@
-#[derive(Debug)]
-enum ApiResponseVariant<T> {
-    Success(T),
-    Error(String),
-}
+use serde::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 struct ApiResponse<T> {
     success: bool,
     message: String,
-    variant: ApiResponseVariant<T>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<T>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<String>,
 }
 
 impl<T> ApiResponse<T> {
@@ -16,7 +17,8 @@ impl<T> ApiResponse<T> {
         ApiResponse {
             success: true,
             message: String::from(message),
-            variant: ApiResponseVariant::Success(data),
+            data: Some(data),
+            error: None,
         }
     }
 }
@@ -26,31 +28,50 @@ impl ApiResponse<String> {
         ApiResponse {
             success: false,
             message: String::from(message),
-            variant: ApiResponseVariant::Error(String::from(error)),
+            data: None,
+            error: Some(String::from(error)),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 struct User {
-    name: String,
+    first_name: String,
+    last_name: String,
+    username: String,
     email: String,
+    age: u8,
+}
+
+impl User {
+    fn new(first_name: &str, last_name: &str, username: &str, email: &str, age: u8) -> User {
+        User {
+            first_name: String::from(first_name),
+            last_name: String::from(last_name),
+            username: String::from(username),
+            email: String::from(email),
+            age,
+        }
+    }
 }
 
 fn main() {
-    let response_success = ApiResponse::success(
-        "Your endpoint works successfully !",
-        User {
-            name: String::from("Bryan"),
-            email: String::from("bryan.cellier.pro@gmail.com"),
-        },
+    let user = User::new(
+        "bryan",
+        "cellier",
+        "kyomawa",
+        "bryan.cellier.pro@gmail.com",
+        23,
     );
-
+    let response_success = ApiResponse::success("User was successfully retrieved.", user);
     let response_error = ApiResponse::error(
-        "An error occured during the fetch.",
-        "No user with this id exist.",
+        "An error occured during the user retrieving.",
+        "No user with this id exist",
     );
 
-    println!("{:#?}", response_success);
-    println!("{:#?}", response_error);
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&response_success).unwrap()
+    );
+    println!("{}", serde_json::to_string_pretty(&response_error).unwrap());
 }
