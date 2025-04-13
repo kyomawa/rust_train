@@ -12,6 +12,14 @@
 // the quantity bought.
 // fn calculate_price_of_apples(???) -> ??? { ??? }
 
+fn calculate_price_of_apples(apples_number: u32) -> u32 {
+    if apples_number > 40 {
+        return apples_number;
+    }
+
+    apples_number * 2
+}
+
 fn main() {
     // You can optionally experiment here.
 }
