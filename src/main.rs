@@ -1,33 +1,56 @@
 #[derive(Debug)]
-struct Rectangle {
-    width: u32,
-    height: u32,
+enum ApiResponseVariant<T> {
+    Success(T),
+    Error(String),
 }
 
-impl Rectangle {
-    fn new(width: u32, height: u32) -> Rectangle {
-        self::Rectangle { height, width }
-    }
+#[derive(Debug)]
+struct ApiResponse<T> {
+    success: bool,
+    message: String,
+    variant: ApiResponseVariant<T>,
+}
 
-    fn area(&self) -> u32 {
-        self.width * self.height
+impl<T> ApiResponse<T> {
+    fn success(message: &str, data: T) -> ApiResponse<T> {
+        ApiResponse {
+            success: true,
+            message: String::from(message),
+            variant: ApiResponseVariant::Success(data),
+        }
     }
+}
 
-    fn can_contain(&self, rect: &Rectangle) -> bool {
-        self.width > rect.width && self.height > rect.height
+impl ApiResponse<String> {
+    fn error(message: &str, error: &str) -> ApiResponse<String> {
+        ApiResponse {
+            success: false,
+            message: String::from(message),
+            variant: ApiResponseVariant::Error(String::from(error)),
+        }
     }
+}
+
+#[derive(Debug)]
+struct User {
+    name: String,
+    email: String,
 }
 
 fn main() {
-    let rect = Rectangle {
-        width: 10,
-        height: 4,
-    };
+    let response_success = ApiResponse::success(
+        "Your endpoint works successfully !",
+        User {
+            name: String::from("Bryan"),
+            email: String::from("bryan.cellier.pro@gmail.com"),
+        },
+    );
 
-    let rect2 = Rectangle::new(12, 6);
+    let response_error = ApiResponse::error(
+        "An error occured during the fetch.",
+        "No user with this id exist.",
+    );
 
-    println!("{:#?}", rect);
-    println!("{:#?}", rect.area());
-    println!("{:#?}", rect2);
-    println!("{:#?}", rect2.can_contain(&rect));
+    println!("{:#?}", response_success);
+    println!("{:#?}", response_error);
 }
