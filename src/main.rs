@@ -9,7 +9,7 @@ struct ApiResponse<T> {
     data: Option<T>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    error: Option<String>,
+    error: Option<T>,
 }
 
 impl<T> ApiResponse<T> {
@@ -21,21 +21,21 @@ impl<T> ApiResponse<T> {
             error: None,
         }
     }
-}
 
-impl ApiResponse<String> {
-    fn error(message: &str, error: &str) -> ApiResponse<String> {
+    fn error(message: &str, error: T) -> ApiResponse<T> {
         ApiResponse {
             success: false,
             message: String::from(message),
             data: None,
-            error: Some(String::from(error)),
+            error: Some(error),
         }
     }
 }
 
 #[derive(Debug, Serialize)]
 struct User {
+    #[serde(rename = "id")]
+    _id: u8,
     first_name: String,
     last_name: String,
     username: String,
@@ -46,6 +46,7 @@ struct User {
 impl User {
     fn new(first_name: &str, last_name: &str, username: &str, email: &str, age: u8) -> User {
         User {
+            _id: 5,
             first_name: String::from(first_name),
             last_name: String::from(last_name),
             username: String::from(username),
@@ -63,9 +64,11 @@ fn main() {
         "bryan.cellier.pro@gmail.com",
         23,
     );
-    let response_success = ApiResponse::success("User was successfully retrieved.", user);
+    let user2 = User::new("john", "doe", "johnd", "john.doe@gmail.com", 46);
+    let v = vec![user, user2];
+    let response_success = ApiResponse::success("Users were successfully retrieved.", v);
     let response_error = ApiResponse::error(
-        "An error occured during the user retrieving.",
+        "An error occured while trying to retrieve users.",
         "No user with this id exist",
     );
 
